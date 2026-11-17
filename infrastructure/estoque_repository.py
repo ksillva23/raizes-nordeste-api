@@ -1,23 +1,74 @@
-from typing import Dict, Tuple
+from infrastructure.database import get_connection
+
 
 class EstoqueRepository:
-    def __init__(self):
-        #Achei interessante criar um catálogo para simular os produtos do Restaurante, segue: 10 = Baião de Dois, 20 = Carne de Sol com Mandioca, 30 = Cuscuz Recheado
-        self._estoque: Dict[Tuple[int, int], int] = {
-            (1, 10): 15,  
-            (1, 20): 8,   
-            (1, 30): 20,
-            (2, 10): 12   
-        }
-
     def consultar_saldo(self, unidade_id: int, produto_id: int) -> int:
-        return self._estoque.get((unidade_id, produto_id), 0)
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(
+                """
+                SELECT quantidade
+                FROM estoque
+                WHERE unidade_id = ? AND produto_id = ?
+                """,
+                (unidade_id, produto_id),
+            )
+            row = cursor.fetchone()
+            return row["quantidade"] if row else 0
+        finally:
+            conn.close()
 
     def abater_estoque(self, unidade_id: int, produto_id: int, quantidade: int) -> bool:
-        saldo_atual = self.consultar_saldo(unidade_id, produto_id)
-        if saldo_atual < quantidade:
+        if quantidade <= 0:
             return False
-        self._estoque[(unidade_id, produto_id)] = saldo_atual - quantidade
-        return True
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(
+                """
+                UPDATE estoque
+                SET quantidade = quantidade - ?
+                WHERE unidade_id = ?
+                  AND produto_id = ?
+                  AND quantidade >= ?
+                """,
+                (quantidade, unidade_id, produto_id, quantidade),
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
+    def repor_estoque(self, unidade_id: int, produto_id: int, quantidade: int) -> bool:
+        if quantidade <= 0:
+            return False
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(
+                """
+                UPDATE estoque
+                SET quantidade = quantidade + ?
+                WHERE unidade_id = ? AND produto_id = ?
+                """,
+                (quantidade, unidade_id, produto_id),
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
 
 repositorio_estoque = EstoqueRepository()
