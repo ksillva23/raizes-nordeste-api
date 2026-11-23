@@ -1,3 +1,4 @@
+
 from getpass import getpass
 from pwdlib import PasswordHash
 
@@ -5,19 +6,29 @@ from domain.usuario import Usuario, PerfilUsuarioEnum
 from infrastructure.usuario_repository import repositorio_usuarios
 
 
-nome = input("Nome do administrador: ")
-email = input("E-mail: ")
-senha = getpass("Senha: ")
+nome = input("Nome do administrador: ").strip()
+email = input("E-mail: ").strip().lower()
 
-password_hash = PasswordHash.recommended()
+if repositorio_usuarios.buscar_por_email(email):
+    print("\nJá existe um usuário cadastrado com esse e-mail.")
+else:
+    senha = getpass("Senha: ")
 
-usuario = Usuario(
-    nome=nome,
-    email=email,
-    senhaHash=password_hash.hash(senha),
-    perfil=PerfilUsuarioEnum.ADMIN
-)
+    if not nome or not email or not senha:
+        print("\nTodos os campos são obrigatórios.")
+    else:
+        password_hash = PasswordHash.recommended()
 
-usuario_salvo = repositorio_usuarios.salvar(usuario)
+        usuario = Usuario(
+            nome=nome,
+            email=email,
+            senhaHash=password_hash.hash(senha),
+            perfil=PerfilUsuarioEnum.ADMIN
+        )
 
-print(f"\nUsuário cadastrado com sucesso! ID: {usuario_salvo.id}")
+        usuario_salvo = repositorio_usuarios.salvar(usuario)
+
+        print(
+            f"\nAdministrador cadastrado com sucesso! "
+            f"ID: {usuario_salvo.id}"
+        )
