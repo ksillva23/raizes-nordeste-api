@@ -1,40 +1,123 @@
-# API Back-End - Raízes do Nordeste
+# Rede Raízes do Nordeste — API Back-End
 
-Este sistema foi desenvolvido com o objetivo de gerenciar pedidos multicanal, controlar o estoque por unidade e processar pagamentos da rede de restaurantes Raízes do Nordeste.
+## 1. Sobre o projeto
 
-## Arquitetura do Projeto
+O projeto **Rede Raízes do Nordeste** consiste no desenvolvimento de uma API REST para gerenciamento de pedidos e estoque de uma rede de franquias do ramo alimentício.
 
-O desenvolvimento do projeto foi estruturado em 4 camadas para fins de separação de responsabilidades:
-- `domain/`: Possui as regras de negócio, entidades e validações de transição de status.
-- `application/`: Casos de uso e simulação do serviço de pagamento integrado (Mock).
-- `infrastructure/`: Possui repositórios em memória para armazenamento interno de pedidos e também controle de saldo de estoque.
-- `api/`: Controladores REST e validação de contratos de entrada.
+A solução foi desenvolvida como projeto acadêmico do curso de Análise e Desenvolvimento de Sistemas, com o objetivo de implementar funcionalidades relacionadas ao gerenciamento de pedidos, controle de estoque, autenticação de usuários e processamento simulado de pagamentos.
 
-## Tecnologias Utilizadas
-- Python 3
-- FastAPI & Uvicorn
-- Pydantic
+A API contempla diferentes canais de realização de pedidos, como aplicativo, totem, balcão, retirada e web.
 
-## Como Executar Localmente
+## 2. Tecnologias utilizadas
 
-1. Clone o repositório e acesse a pasta do projeto.
-2. Crie e ative o ambiente virtual:
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\activate
+- **Python 3:** linguagem de programação.
+- **FastAPI:** desenvolvimento da API REST.
+- **SQLite:** banco de dados relacional.
+- **Pydantic:** validação e estruturação dos dados.
+- **PyJWT:** geração e validação de tokens JWT.
+- **pwdlib / Argon2:** criptografia e verificação de senhas.
+- **python-dotenv:** gerenciamento de variáveis de ambiente.
+- **Uvicorn:** servidor ASGI para execução da aplicação.
+- **Postman:** realização dos testes dos endpoints.
 
-   ```
-3. Instale as dependências necessárias:
-   ```bash
-   pip install fastapi uvicorn
-   ```
-4. Inicie o servidor da aplicação:
-   ```bash
-   uvicorn main:app --reload
-   ```
-5. Abra o navegador e acesse a documentação interativa (Swagger) em: `http://127.0.0.1:8000/docs`
+## 3. Arquitetura do projeto
 
-## Endpoints Principais
-- `POST /pedidos`: Cria um novo pedido, valida e abate o estoque da unidade e processa o pagamento.
-- `GET /pedidos/{pedido_id}`: Consulta os detalhes e o status atual de um pedido.
-- `PATCH /pedidos/{pedido_id}/status`: Atualiza o status operacional do pedido (`EM_PREPARO`, `PRONTO`, `ENTREGUE`, `CANCELADO`).
+O projeto utiliza uma organização em camadas, buscando separar as responsabilidades e facilitar a manutenção do código.
+
+```text
+projetoFinal-raizes-nordeste/
+│
+├── api/
+│   ├── auth_controller.py
+│   ├── dependencies.py
+│   ├── pedido_controller.py
+│   └── usuario_controller.py
+│
+├── application/
+│   ├── auth_service.py
+│   ├── jwt_service.py
+│   └── pagamento_service.py
+│
+├── domain/
+│   └── pedido.py
+│
+├── infrastructure/
+│   ├── database.py
+│   ├── estoque_repository.py
+│   └── pedido_repository.py
+│
+├── main.py
+├── requirements.txt
+├── .env.example
+└── .gitignore
+```
+
+### Responsabilidades das camadas
+
+- **API:** disponibiliza os endpoints, recebe requisições e controla o acesso às funcionalidades.
+- **Application:** concentra os serviços e as regras de aplicação, como autenticação e processamento de pagamentos.
+- **Domain:** representa as entidades, enumerações e regras centrais do domínio.
+- **Infrastructure:** realiza a comunicação com o banco de dados e implementa a persistência das informações.
+
+## 4. Funcionalidades implementadas
+
+### Autenticação e usuários
+
+- Autenticação de usuários por e-mail e senha.
+- Geração de tokens JWT.
+- Armazenamento de senhas utilizando hash seguro.
+- Controle de acesso por perfil de usuário.
+- Cadastro de usuários com permissão administrativa.
+
+### Gerenciamento de pedidos
+
+- Criação de pedidos.
+- Consulta de pedidos cadastrados.
+- Identificação do canal de realização do pedido.
+- Associação de produtos, quantidades e valores.
+- Atualização do status dos pedidos.
+- Validação das transições de status.
+
+### Controle de estoque
+
+- Consulta da disponibilidade dos produtos.
+- Verificação de estoque antes da criação do pedido.
+- Baixa automática do estoque após a criação do pedido.
+- Devolução do estoque quando o pagamento simulado é recusado.
+
+### Pagamento simulado
+
+O projeto possui um serviço de pagamento simulado, permitindo representar dois cenários:
+
+- **Aprovado:** o pedido avança para o status `EM_PREPARO`.
+- **Recusado:** o pedido permanece em `AGUARDANDO_PAGAMENTO`, e o estoque é restaurado.
+
+O serviço não realiza transações financeiras reais.
+
+### Auditoria
+
+O sistema registra ações relevantes realizadas pelos usuários, incluindo operações relacionadas à criação de usuários e à atualização de status dos pedidos.
+
+## 5. Banco de dados
+
+A aplicação utiliza SQLite para persistência dos dados.
+
+Entre as principais tabelas estão:
+
+- `unidades`
+- `produtos`
+- `estoque`
+- `pedidos`
+- `itens_pedido`
+- `pagamentos`
+- `usuarios`
+- `logs_auditoria`
+
+A estrutura do banco de dados é inicializada pela aplicação durante sua inicialização, por meio da função `initialize_database()`.
+
+## 6. Requisitos para execução
+
+Antes de executar o projeto, é necessário possuir:
+
+- Python 3 instalado.
+- Pip para gerenciamento

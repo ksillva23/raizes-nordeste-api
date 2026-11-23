@@ -82,5 +82,32 @@ def initialize_database():
         );
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            senha_hash TEXT NOT NULL,
+            perfil TEXT NOT NULL CHECK (
+                perfil IN ('ADMIN', 'ATENDENTE')
+            ),
+            ativo INTEGER NOT NULL DEFAULT 1,
+            data_criacao TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS logs_auditoria (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        usuario_id INTEGER,
+        acao TEXT NOT NULL,
+        entidade TEXT NOT NULL,
+        entidade_id INTEGER,
+        detalhes TEXT,
+        data_criacao TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    );
+""")
+
     conn.commit()
     conn.close()
