@@ -1,3 +1,4 @@
+
 # Rede Raízes do Nordeste — API Back-End
 
 ## 1. Sobre o projeto
@@ -48,6 +49,9 @@ projetoFinal-raizes-nordeste/
 │   ├── estoque_repository.py
 │   ├── pedido_repository.py
 │   └── usuario_repository.py
+│
+├── documentacao/
+│   └── Raizes_do_Nordeste_Postman.json
 │
 ├── criar_usuario_teste.py
 ├── seed.py
@@ -125,7 +129,7 @@ As principais tabelas são:
 
 A estrutura do banco de dados é criada automaticamente durante a inicialização da aplicação, por meio da função `initialize_database()`.
 
-O arquivo SQLite utilizado é `raizes_nordeste.db`, localizado na raiz do projeto.
+O arquivo SQLite utilizado é `raizes_nordeste.db`, localizado na raiz do projeto. Esse arquivo é gerado localmente e não precisa ser enviado ao repositório.
 
 ## 6. Requisitos para execução
 
@@ -258,22 +262,47 @@ Os endpoints protegidos exigem autenticação por token JWT, conforme as permiss
 
 ## 11. Testes da API
 
-Os testes foram realizados utilizando o Postman, contemplando cenários positivos e negativos.
+A API foi validada por meio de testes realizados no Swagger e no Postman.
 
-Entre os cenários verificados estão:
+Entre os cenários testados estão:
 
-- Login com credenciais válidas e inválidas.
-- Cadastro de usuários com e sem autenticação.
-- Controle de permissões entre ADMIN e ATENDENTE.
+- Login com credenciais válidas.
+- Login com senha incorreta.
+- Autenticação utilizando diferentes perfis de usuário.
+- Cadastro de usuários com autorização ADMIN.
+- Bloqueio de cadastro sem autenticação.
+- Bloqueio de operações não autorizadas para ATENDENTE.
 - Consulta de pedidos existentes e inexistentes.
 - Criação de pedidos com pagamento aprovado e recusado.
-- Tentativa de criação de pedido com estoque insuficiente.
-- Validação de quantidade, produtos e unidades.
-- Atualização de status com transições válidas e inválidas.
-- Verificação de acesso a endpoints protegidos.
-- Registro de ações de auditoria.
+- Validação de estoque insuficiente.
+- Validação de quantidade inválida.
+- Validação de produtos e unidades inexistentes.
+- Validação de transições de status inválidas.
+- Atualização de status de pedidos.
+- Registro de ações no log de auditoria.
 
-A coleção de testes do Postman deve acompanhar os materiais de entrega do projeto.
+### 11.1. Coleção do Postman
+
+A coleção de testes está disponível no arquivo:
+
+`documentacao/Raizes_do_Nordeste_Postman.json`
+
+Para importar a coleção:
+
+1. Abra o Postman.
+2. Clique em **Import**.
+3. Selecione o arquivo `Raizes_do_Nordeste_Postman.json`, localizado na pasta `documentacao`.
+4. Importe a coleção.
+5. Configure as variáveis da coleção com as credenciais dos usuários cadastrados localmente:
+   - `admin_email`: e-mail do administrador.
+   - `admin_senha`: senha do administrador.
+   - `atendente_email`: e-mail do atendente.
+   - `atendente_senha`: senha do atendente.
+   - `senha_teste`: senha utilizada nos cadastros de teste.
+
+A variável `token` é preenchida automaticamente após um login realizado com sucesso, por meio do script configurado na requisição.
+
+Antes de executar os testes, certifique-se de que a API esteja em execução e que o banco de dados esteja inicializado e contenha os dados necessários.
 
 ## 12. Segurança
 
