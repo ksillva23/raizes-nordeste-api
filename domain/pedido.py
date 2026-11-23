@@ -45,8 +45,6 @@ class Pedido(BaseModel):
     def atualizar_status_por_pagamento(self, status_pagamento: StatusPagamentoEnum):
         if status_pagamento == StatusPagamentoEnum.APROVADO:
             self.status = StatusPedidoEnum.EM_PREPARO
-        elif status_pagamento == StatusPagamentoEnum.RECUSADO:
-            self.status = StatusPedidoEnum.CANCELADO
 
     def avancar_status(self, novo_status: StatusPedidoEnum) -> bool:
         transicoes_validas = {
